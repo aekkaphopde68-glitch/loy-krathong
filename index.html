@@ -600,8 +600,7 @@
         async function initFirebase() {
             try {
                 if (typeof __firebase_config === 'undefined') {
-                    console.warn("Firebase config not found. Running in local demo mode.");
-                    seedDemoKrathongs();
+                    console.warn("Firebase config not found. Running in local mode.");
                     return;
                 }
                 const firebaseConfig = JSON.parse(__firebase_config);
@@ -620,7 +619,6 @@
                 subscribeToRiver();
             } catch (error) {
                 console.error("Firebase init error:", error);
-                seedDemoKrathongs();
             }
         }
 
@@ -630,10 +628,7 @@
         }
 
         function subscribeToRiver() {
-            if (!db || !currentUser) {
-                seedDemoKrathongs();
-                return;
-            }
+            if (!db || !currentUser) return;
 
             if (unsubscribeKrathongs) {
                 unsubscribeKrathongs();
@@ -688,47 +683,6 @@
             });
         }
 
-        function seedDemoKrathongs() {
-            const demos = [
-                {
-                    id: 'demo1',
-                    style: 'banana_leaf',
-                    color: 'pink',
-                    candle: '#FBBF24',
-                    isCouple: true,
-                    senderName: 'พ่อ & แม่',
-                    partnerName: 'ครอบครัวสุขสันต์',
-                    wishText: 'ขอให้ลูกหลานทุกคนมีความสุข สุขภาพแข็งแรง เจริญก้าวหน้าในหน้าที่การงาน',
-                    hearts: 12,
-                    xRatio: 0.28,
-                    yRatio: 0.66,
-                    speed: 0.00022,
-                    bobPhase: 0.5,
-                    scale: 0.78,
-                    dropAnim: 0
-                },
-                {
-                    id: 'demo2',
-                    style: 'lotus',
-                    color: 'gold',
-                    candle: '#F43F5E',
-                    isCouple: false,
-                    senderName: 'ณัฐพล',
-                    partnerName: '',
-                    wishText: 'ขอให้พระแม่คงคาคุ้มครอง พบเจอแต่กัลยาณมิตรและความโชคดีตลอดปี',
-                    hearts: 8,
-                    xRatio: 0.64,
-                    yRatio: 0.76,
-                    speed: 0.00028,
-                    bobPhase: 2.1,
-                    scale: 0.90,
-                    dropAnim: 0
-                }
-            ];
-            state.krathongs = demos;
-            document.getElementById('krathongCountBadge').textContent = `${state.krathongs.length} กระทงในสายน้ำ`;
-        }
-
         // ==========================================
         // 5. DRAWING ENGINE (CANVAS GRAPHICS)
         // ==========================================
@@ -757,7 +711,6 @@
         let fireworks = [];
         let fireworkParticles = [];
         let floatingHearts = [];
-        let waterRipples = [];
 
         function initStars() {
             stars = [];
@@ -1523,7 +1476,7 @@
             showToast('ส่งหัวใจและคำอนุโมทนาเรียบร้อยแล้ว', '💖');
 
             // Update Firestore if connected
-            if (db && currentUser && !target.id.startsWith('demo')) {
+            if (db && currentUser && !target.id.startsWith('local_')) {
                 try {
                     const docRef = doc(getKrathongsCollectionRef(), target.id);
                     await updateDoc(docRef, {
